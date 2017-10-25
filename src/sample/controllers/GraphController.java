@@ -91,14 +91,16 @@ public class GraphController {
     }
 
     public void mouseScroll(ScrollEvent scrollEvent) {
-        //showPopupMessage("Stop scroll", mainStage);
         double zoomFactor = 0.6;
         double deltaY = scrollEvent.getDeltaY();
         if (deltaY < 0){
             zoomFactor = 10.0 / 6;
         }
 
-        canva.setLocalBorders(canva.globalToLocal(new Point2D(scrollEvent.getX(), scrollEvent.getY())), zoomFactor);
+        if (canva.isZooming(zoomFactor))
+            canva.setLocalBorders(canva.globalToLocal(new Point2D(scrollEvent.getX(), scrollEvent.getY())), zoomFactor);
+        else
+            showPopupMessage("Вы достишли границу приближения/отдаления", mainStage);
     }
 
     public void onActionCloseMenu(ActionEvent actionEvent) {
