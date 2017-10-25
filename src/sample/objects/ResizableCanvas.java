@@ -19,7 +19,7 @@ public class ResizableCanvas extends Canvas {
 
     private double ax = - 2.0 * Math.PI, bx = 2.0 * Math.PI, ay = - 2.0, by = + 2.0;
 
-    private double bh = 25, bw = 40;
+    private double bh = 25, bw = 50;
 
     public ResizableCanvas() {
         System.out.println("Constructor ResizeableCanvas");
@@ -76,13 +76,37 @@ public class ResizableCanvas extends Canvas {
         gc.clearRect(0, 0, bw, getHeight());
         gc.clearRect(bw, getHeight() - bh, getWidth(), getHeight());
 
-        DecimalFormat dv = new DecimalFormat("#.###");
         gc.strokeLine(bw, bh, width, bh);
         gc.strokeLine(width, bh, width, height);
         gc.strokeLine(width, height, bw, height);
         gc.strokeLine(bw, height, bw, bh);
         double stepX = (getWidth() - 2 * bw) / 10;
         double stepY = (getHeight() - 2 * bh) / 10;
+
+        DecimalFormat dv = new DecimalFormat("#.###");
+        int yZeroCount = 0, xZeroCount = 0;
+        //String prevNumberX = "", prevNumberY = "";
+        Point2D prevPoint = globalToLocal(new Point2D(bw, height));
+        for (int i = 0; i < 11; ++i) {
+            Point2D point = globalToLocal(new Point2D(bw + (i * stepX), height - (i * stepY)));
+            if (Math.abs(point.getX()) > 1e+10 || Math.abs(point.getY()) > 1e+10) {
+                dv = new DecimalFormat("#.#E0");
+                System.out.println(point.getY());
+                break;
+            }
+            if (i != 0 && (dv.format(point.getX()).length() > 7 || dv.format(point.getY()).length() > 7)) {
+                dv = new DecimalFormat("#.##E0");
+                break;
+            }
+            if (i != 0 && (Math.abs(point.getX() - prevPoint.getX()) < 0.001 || Math.abs(point.getY() - prevPoint.getY()) < 0.001)) {
+                dv = new DecimalFormat("#.#E0");
+                break;
+            }
+            prevPoint = point;
+            //prevNumberX = dv.format(point.getX());
+            //prevNumberY = dv.format(point.getY());
+        }
+
         for (int i = 0; i < 11; ++i) {
             gc.strokeLine(bw + i * stepX, bh, bw + i * stepX, bh + 4);
             gc.strokeLine(bw + i * stepX, height - 4, bw + i * stepX, height);
@@ -91,9 +115,12 @@ public class ResizableCanvas extends Canvas {
 
             Point2D point = globalToLocal(new Point2D(bw + (i * stepX), height - (i * stepY)));
             gc.fillText(dv.format(point.getX()), bw - 15 + (i * stepX), height + 16);
-            gc.fillText(dv.format(point.getY()), bw - 39, height + 5 - (i * stepY));
+            gc.fillText(dv.format(point.getY()), bw - 50, height + 5 - (i * stepY));
 
         }
+
+        gc.fillText("x, см.", width + 10, height);
+        gc.fillText("y, см.", bw, bh - 10);
     }
 
 
